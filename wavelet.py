@@ -1,4 +1,3 @@
-# coding: utf-8
 
 
 
@@ -35,7 +34,7 @@ def loadDataSet(fileName, delim='\t'):
     print np.shape(stringArr)
    # print stringArr
     datArr = [map(float, line) for line in stringArr]
-    return np.mat(datArr)
+    return datArr
 
 if __name__ == "__main__":
 
@@ -47,25 +46,30 @@ if __name__ == "__main__":
     coeffs = pywt.dwt2(dataMat, 'haar')
     cA, (cH, cV, cD) = coeffs
     coeffsMat=np.row_stack((np.column_stack((cA,cH)),np.column_stack((cV,cD))))
-    storeMatrix("coeffsMat.txt",coeffsMat)   
     print(np.count_nonzero(coeffsMat))
     #coeffs_t=coeffs
     #np.where(coeffs_t > 0, coeffs_t, 0)
     #print coeffs_t
     coeffs_td=[]
     for ii in coeffs:
-	a=pywt.threshold(ii, 0.01, 'hard')
+	a=pywt.threshold(ii, 372, 'hard')
         coeffs_td.append(a)
     cA1, (cH1, cV1, cD1) = coeffs_td
     coeffsMat_td=np.row_stack((np.column_stack((cA1,cH1)),np.column_stack((cV1,cD1))))
-    storeMatrix("coeffsMat_td.txt",coeffsMat_td)
-    print(np.count_nonzero(coeffsMat_td))
-    print np.shape(coeffsMat_td) 
     #print coeffs_td
-    recdata=pywt.idwt2(coeffs_td, 'haar')
-    recdata=pywt.idwt2(coeffs_td, 'haar')
-    recdata1=recdata[0:np.shape(dataMat)[0],0:np.shape(dataMat)[1]]   
-    storeMatrix("recdata.txt",recdata1) 
-    delta=recdata1-dataMat
-    delta=recdata1-dataMat
-    storeMatrix("delta.txt",delta)
+    reconMat=pywt.idwt2(coeffs_td, 'haar')
+    m=np.shape(dataMat)[0]
+    n=np.shape(dataMat)[1]
+    print m,n
+    sum_temp=0
+    print  float(m*n)/float (np.count_nonzero(coeffsMat_td))
+     
+    for i in range (m):
+        for j in range (n):
+                #print reconMat[i][j]
+                #float(pic_recon[i][j])
+                #float(new[i][j])
+                sum_temp+=(float(dataMat[i][j])-float(reconMat[i][j]))**2
+    rmse=(sum_temp/n)**0.5
+
+    print(rmse)
